@@ -1,3 +1,4 @@
+use std::error;
 use std::fmt;
 use std::kinds::marker;
 use std::str;
@@ -10,6 +11,18 @@ pub struct Error {
     code: libc::c_int,
     msg: &'static str,
     marker: marker::NoCopy,
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str { "ssh2 error" }
+    fn detail(&self) -> Option<String> { Some(format!("{}", self)) }
+    fn cause(&self) -> Option<&error::Error> { None }
+}
+
+impl error::FromError<Error> for Box<error::Error> {
+    fn from_error(err: Error) -> Box<error::Error> {
+        box err
+    }
 }
 
 impl Error {
